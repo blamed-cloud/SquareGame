@@ -47,20 +47,20 @@ class Square:
 
 class Board:
 	def __init__(self, n_rows, n_cols):
-		self.matrix = []
+		self.grid = []
 		# create empty squares
 		for y in range(n_rows):
 			row = []
 			for x in range(n_cols):
 				row += [Square()]
-			self.matrix += [row]
+			self.grid += [row]
 		# perform linking
 		for y in range(n_rows):
 			for x in range(n_cols):
 				if x != n_cols - 1:
-					self.matrix[y][x].link_side(self.matrix[y][x+1],"RIGHT")
+					self.grid[y][x].link_side(self.grid[y][x+1],"RIGHT")
 				if y != n_rows - 1:
-					self.matrix[y][x].link_side(self.matrix[y+1][x],"DOWN")
+					self.grid[y][x].link_side(self.grid[y+1][x],"DOWN")
 		self.rows = n_rows
 		self.cols = n_cols
 		
@@ -70,7 +70,7 @@ class Board:
 			middle_row = ""
 			bottom_row = ""
 			for x in range(self.cols):
-				sq = self.matrix[y][x]
+				sq = self.grid[y][x]
 				top_row += "." + sq.primary_print_str("UP")
 				middle_row += sq.primary_print_str("LEFT") + sq.get_tag() + sq.primary_print_str("RIGHT")
 				bottom_row += "." + sq.primary_print_str("DOWN")
