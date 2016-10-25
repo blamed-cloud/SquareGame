@@ -30,6 +30,9 @@ class Square:
 	def get_tag(self):
 		return self.fill_tag
 		
+	def num_filled_sides(self):
+		return sum(self.side.values())
+		
 	def link_side(self, other, direction, primary_side = True):
 		if direction not in self.links:
 			self.links[direction] = other
@@ -68,6 +71,7 @@ class Board:
 				row += [Square()]
 			self.grid += [row]
 		# perform linking
+		#### consider implimeting back-linking ####
 		for y in range(n_rows):
 			for x in range(n_cols):
 				if x != n_cols - 1:
@@ -165,17 +169,19 @@ class Board:
 		human = self.is_human_turn()
 		if human or self.show_board:
 			self.opg()
+			print "="*(2*self.cols + 1)
 #		if not human:
 #			if not self.thinking:
 #				print "Player" + str(self.get_player_num()) + " (the computer) is thinking..."
 #				self.thinking = True
-		if human:
-			print "First, choose a square to play on."
-			print "enter a number between 0 and " + str(self.rows) + " for the row,"
-			print "and then enter a number between 0 and " + str(self.cols) + " for the col."
+
 		sq = []
 		finished_playing = False
 		while not finished_playing:
+			if human:
+				print "First, choose a square to play on."
+				print "enter a number between 0 and " + str(self.rows) + " for the row,"
+				print "and then enter a number between 0 and " + str(self.cols) + " for the col."
 			sq = self.current_player().choose_square(self)
 			if sq in self.escapes:
 				self.handle_escape(sq)
@@ -208,17 +214,45 @@ class Board:
 #		B.opg()
 #		print
 
-num_games = 10000
+num_games = 100000
 
-p1 = player.RandomAI()
-p2 = player.RandomAI()
-win_counts = [0,0,0]
+# hp = player.Human()
+# B = Board(4,6,hp, player.GreedyAI())
+# B.play()
+
+p1r = player.RandomAI()
+p2r = player.RandomAI()
+p1g = player.GreedyAI()
+p2g = player.GreedyAI()
+
+win_counts = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]
 
 for x in range(num_games):
-	B = Board(3,4,p1,p2, True)
+	B = Board(3,3,p1r,p2r, True)
 	w = B.play()
-	win_counts[w] += 1
+	win_counts[0][w] += 1
 	
-print win_counts
-for w in win_counts:
-	print str(w) + "/" + str(num_games) + " : " + str(w/float(num_games))
+#for x in range(num_games):
+#	B = Board(10,12,p1r,p1g, True)
+#	w = B.play()
+#	win_counts[1][w] += 1
+	
+#for x in range(num_games):
+#	B = Board(10,12,p1g,p1r, True)
+#	w = B.play()
+#	win_counts[2][w] += 1
+	
+for x in range(num_games):
+	B = Board(10,12,p1g,p2g, True)
+	w = B.play()
+	win_counts[3][w] += 1
+
+for x in range(4):
+	print win_counts[x]
+	for w in win_counts[x]:
+		print str(w) + "/" + str(num_games) + " : " + str(w/float(num_games))
+	print
+
+
+
+
