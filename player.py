@@ -26,7 +26,7 @@ class Human(Player):
 		col = prgm_lib.get_int_escape_codes(game.escapes)
 		return [row,col]
 		
-	def choose_side(self, game)
+	def choose_side(self, game):
 		return prgm_lib.get_choice_escape_codes(game.sides, game.escapes)
 		
 class RandomAI(Player):
@@ -34,7 +34,7 @@ class RandomAI(Player):
 		self.human = False
 		
 	def choose_square(self, game):
-		return [random.randint(0, game.rows), random.randint(0, game.cols)]
+		return [random.randint(0, game.rows-1), random.randint(0, game.cols-1)]
 		
 	def choose_side(self, game):
-		return game.sides[random.randint(0, len(game.sides))]
+		return game.sides[random.randint(0, len(game.sides)-1)]

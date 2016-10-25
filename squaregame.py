@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #squaregame.py
 
+import player
 
 
 class Square:
@@ -20,6 +21,12 @@ class Square:
 			self.fill_tag = player_tag
 		return self.filled
 		
+	def is_full(self):
+		return self.filled
+		
+	def is_side_used(self, direction):
+		return self.side[direction] != 0
+		
 	def get_tag(self):
 		return self.fill_tag
 		
@@ -33,6 +40,7 @@ class Square:
 		return self.side[direction] == 0
 		
 	def fill_side(self, direction, player_tag):
+		filled = self.filled
 		if self.side[direction] == 0:
 			self.side[direction] = 1
 			filled = self.check_full(player_tag)
@@ -51,7 +59,7 @@ class Square:
 
 
 class Board:
-	def __init__(self, n_rows, n_cols, player1, player2):
+	def __init__(self, n_rows, n_cols, player1, player2, be_quiet = False):
 		self.grid = []
 		# create empty squares
 		for y in range(n_rows):
@@ -68,13 +76,13 @@ class Board:
 					self.grid[y][x].link_side(self.grid[y+1][x],"DOWN")
 		self.turn = 0
 		self.winner = -1
-		self.quiet = False
+		self.quiet = be_quiet
 		self.players = [None, player1, player2]
 		self.rows = n_rows
 		self.cols = n_cols
 		self.sides = ["UP","RIGHT","DOWN","LEFT"]
 		self.escapes = [":w", ":q", ":wq", ":r"]
-		self.show_board = True
+		self.show_board = not be_quiet
 		self.thinking = False
 		
 	def get_turn(self):
@@ -108,7 +116,7 @@ class Board:
 			for x in range(self.cols):
 				sq = self.grid[y][x]
 				top_row += "." + sq.primary_print_str("UP")
-				middle_row += sq.primary_print_str("LEFT") + sq.get_tag() + sq.primary_print_str("RIGHT")
+				middle_row += sq.primary_print_str("LEFT") + str(sq.get_tag()) + sq.primary_print_str("RIGHT")
 				bottom_row += "." + sq.primary_print_str("DOWN")
 			top_row += "."
 			bottom_row += "."
@@ -120,6 +128,25 @@ class Board:
 				
 	def is_valid_sq_pos(self, sq):
 		return (sq[0] in range(self.rows)) and (sq[1] in range(self.cols))
+		
+	def check_winner(self):
+		win = [0,0,0]
+		for y in range(self.rows):
+			for x in range(self.cols):
+				tag = self.grid[y][x].get_tag()
+				if tag == " ":
+					return -1
+				elif str(tag) == "1":
+					win[1] += 1
+				elif str(tag) == "2":
+					win[2] += 1
+		if win[1] > win[2]:
+			self.winner = 1
+		elif win[1] == win[2]:
+			self.winner = 0
+		elif win[2] > win[1]:
+			self.winner = 2
+		return self.winner		
 				
 	def play(self):
 #		if self.history:
@@ -132,63 +159,66 @@ class Board:
 				print "PLAYER" + str(self.winner) + " IS THE WINNER!!!"
 			else:
 				print "IT WAS A DRAW!"
+		return self.winner
 				
 	def do_turn(self):
 		human = self.is_human_turn()
 		if human or self.show_board:
 			self.opg()
-		if not human:
-			if not self.thinking:
-				print "Player" + str(self.get_player()) + " (the computer) is thinking..."
-				self.thinking = True
+#		if not human:
+#			if not self.thinking:
+#				print "Player" + str(self.get_player_num()) + " (the computer) is thinking..."
+#				self.thinking = True
 		if human:
 			print "First, choose a square to play on."
 			print "enter a number between 0 and " + str(self.rows) + " for the row,"
 			print "and then enter a number between 0 and " + str(self.cols) + " for the col."
 		sq = []
-		finished_getting_sq = False
 		finished_playing = False
 		while not finished_playing:
 			sq = self.current_player().choose_square(self)
+			if sq in self.escapes:
+				self.handle_escape(sq)
 			if self.is_valid_sq_pos(sq):
+				if not self.grid[sq[0]][sq[1]].is_full():
+					if human:
+						print "Next, choose a side to play on:"
+					direction = self.current_player().choose_side(self)
+					if direction in self.escapes:
+						self.handle_escape(direction)
+					else:
+						if not self.grid[sq[0]][sq[1]].is_side_used(direction):
+							full = self.grid[sq[0]][sq[1]].fill_side(direction, self.get_player_num())
+							if full:
+								if self.check_winner() == -1:
+									if human:
+										print "You filled in a square, so you get to go again."
+								else:
+									finished_playing = True
+							else:
+								finished_playing = True
+		self.turn += 1
+		self.thinking = False
+
 				
-#		if self.current_box != -1:
-#			if human:
-#				print "Current Square to be played in, at location (" + str(self.current_row) + ", " + str(self.current_col) + ")"
-#				self.grid[self.current_row][self.current_col].opg()
-#				print "Player" + str(self.get_player()) + ", it is your turn to play on this board."
-#				print "Please enter a number [0-8] corresponding to the space you would like to play in."
-#				print "Of course, with 0 corresponding to the top left:"
-#			num = -1
-#			finished_getting_num = False
-#			finished_playing = False
-#			while not finished_playing:
-#				num = self.get_num_for_square()
-#				y = self.current_row
-#				x = self.current_col
-#				inner_col = num % 3
-#				inner_row = (num - (num % 3))/3
-#				turn_descriptor = [[y,x], [inner_row, inner_col]]
-#				if self.try_placing_square(num):
-#					self.turn += 1
-#					finished_playing = True
-#					self.thinking = False
-#					self.last_moves[self.get_player()-1] = turn_descriptor
-#			if self.history:
-#				self.save_state(self.game_file)	
-#		else:
-#			if human:
-#				print "Player" + str(self.get_player()) + ", it is your choice which board to play on."
-#				print "Please enter a number [0-8] corresponding to the board you would like to play on."
-#				print "Of course, with 0 corresponding to the top left:"
-#			num = self.get_num_for_box()
-#			self.current_box = num
-#			self.current_col = num % 3
-#			self.current_row = (num - (num % 3))/3
-				
-for y in range(1,6):
-	for x in range(1,6):
-		print "y = " + str(y) + "; x = " + str(x)
-		B = Board(y,x)
-		B.opg()
-		print
+#for y in range(1,6):
+#	for x in range(1,6):
+#		print "y = " + str(y) + "; x = " + str(x)
+#		B = Board(y,x)
+#		B.opg()
+#		print
+
+num_games = 10000
+
+p1 = player.RandomAI()
+p2 = player.RandomAI()
+win_counts = [0,0,0]
+
+for x in range(num_games):
+	B = Board(3,4,p1,p2, True)
+	w = B.play()
+	win_counts[w] += 1
+	
+print win_counts
+for w in win_counts:
+	print str(w) + "/" + str(num_games) + " : " + str(w/float(num_games))
