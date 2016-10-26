@@ -214,7 +214,7 @@ class Board:
 #		B.opg()
 #		print
 
-num_games = 100000
+num_games = 1000
 
 # hp = player.Human()
 # B = Board(4,6,hp, player.GreedyAI())
