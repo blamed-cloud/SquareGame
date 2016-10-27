@@ -71,7 +71,7 @@ class Board:
 				row += [Square()]
 			self.grid += [row]
 		# perform linking
-		#### consider implimeting back-linking ####
+		#### consider implementing back-linking ####
 		for y in range(n_rows):
 			for x in range(n_cols):
 				if x != n_cols - 1:
