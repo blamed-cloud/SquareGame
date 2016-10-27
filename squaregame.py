@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #squaregame.py
 
 import player
@@ -213,45 +213,45 @@ class Board:
 #		B = Board(y,x)
 #		B.opg()
 #		print
+if __name__ == "__main__":
+	num_games = 10000
 
-num_games = 1000
+#	hp = player.Human()
+#	B = Board(4,6,hp, player.GreedyAI())
+#	B.play()
 
-# hp = player.Human()
-# B = Board(4,6,hp, player.GreedyAI())
-# B.play()
+	p1r = player.RandomAI()
+	p2r = player.RandomAI()
+	p1g = player.GreedyAI()
+	p2g = player.GreedyAI()
 
-p1r = player.RandomAI()
-p2r = player.RandomAI()
-p1g = player.GreedyAI()
-p2g = player.GreedyAI()
+	win_counts = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]
 
-win_counts = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]
-
-for x in range(num_games):
-	B = Board(3,3,p1r,p2r, True)
-	w = B.play()
-	win_counts[0][w] += 1
+	for x in range(num_games):
+		B = Board(4,4,p1r,p2r, True)
+		w = B.play()
+		win_counts[0][w] += 1
 	
-#for x in range(num_games):
-#	B = Board(10,12,p1r,p1g, True)
-#	w = B.play()
-#	win_counts[1][w] += 1
+#	for x in range(num_games):
+#		B = Board(10,12,p1r,p1g, True)
+#		w = B.play()
+#		win_counts[1][w] += 1
 	
-#for x in range(num_games):
-#	B = Board(10,12,p1g,p1r, True)
-#	w = B.play()
-#	win_counts[2][w] += 1
+#	for x in range(num_games):
+#		B = Board(10,12,p1g,p1r, True)
+#		w = B.play()
+#		win_counts[2][w] += 1
 	
-for x in range(num_games):
-	B = Board(10,12,p1g,p2g, True)
-	w = B.play()
-	win_counts[3][w] += 1
+	for x in range(num_games):
+		B = Board(10,12,p1g,p2g, True)
+		w = B.play()
+		win_counts[3][w] += 1
 
-for x in range(4):
-	print win_counts[x]
-	for w in win_counts[x]:
-		print str(w) + "/" + str(num_games) + " : " + str(w/float(num_games))
-	print
+	for x in range(4):
+		print win_counts[x]
+		for w in win_counts[x]:
+			print str(w) + "/" + str(num_games) + " : " + str(w/float(num_games))
+		print
 
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #player.py
 import PythonLibraries.prgm_lib as prgm_lib
 import random
@@ -64,12 +64,12 @@ class GreedyAI(Player):
 		return self.chosen_sq
 				
 	def choose_side(self, game):
-		pos_sides = {"UP": False, "RIGHT": False, "DOWN": False, "LEFT": False}
+		pos_sides = {"UP": True, "RIGHT": True, "DOWN": True, "LEFT": True}
 		y = self.chosen_sq[0]
 		x = self.chosen_sq[1]
 		sq = game.grid[y][x]
 		
-		pos_sides = {key:not sq.is_side_used(key) for key, value in pos_sides.items()}
+		pos_sides = {key:(not sq.is_side_used(key)) for key in pos_sides}
 			
 #		pos_sides1 = {key:sq.num_filled_sides() for key, value in pos_sides.items() if value}
 		pos_sides1 = {}
